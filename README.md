@@ -1,3 +1,3 @@
 # FiniteGroups
 
-Simple project concerning finite groups.
+Simple project concerning finite groups...
