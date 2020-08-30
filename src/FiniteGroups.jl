@@ -15,7 +15,7 @@ then for any rearragement
                      b₁, b₂,..., bₙ 
 of the numbers (*)
                    Perm([b₁, b₂, ... , bₙ])
-stands for the map that sends aᵢ to bᵢ for i=1,2,...,n and sends x to x for all integers x which are not in {a₁ , a₂,..., aₙ}. 
+stands for the map that sends aᵢ to bᵢ for i=1, 2,..., n and sends x to x for all integers x which are not in {a₁ , a₂,..., aₙ}. 
 
 Example:
 
@@ -37,9 +37,8 @@ struct Cyc <: Permutation
     arr :: Array{Int64, 1}
     Cyc(arr) = length(Set(arr)) != length(arr) ? error("Elements in array need to be pairwise distinct!") : new(arr)
 end
-"""
-map function extension to Permutation type objects ...
-"""
+
+# map extension to permutation types:
 function map(τ :: Cyc, x :: Int64)
     array = τ.arr
     if !(x ∈ Set(array))
