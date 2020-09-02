@@ -1,6 +1,6 @@
 module FiniteGroups
 import Base.map
-export τ, Cyc, Perm
+export τ, Cyc, Perm, Permutation
 
 """
 Abstract type to subsum all permutation types
