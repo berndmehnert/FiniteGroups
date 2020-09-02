@@ -38,7 +38,7 @@ struct Cyc <: Permutation
     Cyc(arr) = length(Set(arr)) != length(arr) ? error("Elements in array need to be pairwise distinct!") : new(arr)
 end
 
-# map extension to permutation types!
+# map extension to permutation types.
 function map(τ :: Cyc, x :: Int64)
     array = τ.arr
     if !(x ∈ Set(array))
