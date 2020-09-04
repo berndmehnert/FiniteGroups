@@ -1,5 +1,5 @@
 module FiniteGroups
-import Base.map
+import Base.map, Base.*, Base.^
 export τ, Cyc, Perm, Permutation
 
 """
@@ -36,6 +36,14 @@ Example:
 struct Cyc <: Permutation
     arr :: Array{Int64, 1}
     Cyc(arr) = length(Set(arr)) != length(arr) ? error("Elements in array need to be pairwise distinct!") : new(arr)
+end
+
+function *(σ :: Cyc, τ :: Cyc)
+    return 1
+end
+
+function ^(σ :: Cyc, n :: Int)
+    return 1
 end
 
 # map extension to permutation types.
