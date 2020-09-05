@@ -34,8 +34,22 @@ Example:
 τ = Cyc([1,5,2]) defines the map such that 1 -> 5 -> 2 -> 1 and x -> x for all other integers.
 """
 struct Cyc <: Permutation
-    arr :: Array{Int64, 1}
-    Cyc(arr) = length(Set(arr)) != length(arr) ? error("Elements in array need to be pairwise distinct!") : new(arr)
+    dict :: Dict{Int64, Int64}
+end
+
+function Cyc(ns :: Int64 ...)
+    if length(Set(ns)) != length(ns)
+        error("Elements in list have to be distinct!")
+    end
+    if length(ns) < 2
+        return Cyc(Dict([]))
+    end
+    dict_arr = []
+    for i in 1:length(ns)-1
+        push!(dict_arr, (ns[i], ns[i+1]))
+    end
+    push!(dict_arr, (ns[end], ns[1]))
+    return Cyc(Dict(dict_arr))
 end
 
 function *(σ :: Cyc, τ :: Cyc)
@@ -48,19 +62,11 @@ end
 
 # map extension to permutation types.
 function map(τ :: Cyc, x :: Int64)
-    array = τ.arr
-    if !(x ∈ Set(array))
+    dict = τ.dict
+    if !(x ∈ keys(dict))
         return x
     end
-    for i in 1:length(array)
-        if x == array[i]
-            if i<length(array)
-                return array[i+1]
-            else
-                return array[1]
-            end
-        end
-    end
+    return dict[x]
 end
 
 function map(σ :: Perm, x :: Int64)

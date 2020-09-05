@@ -1,7 +1,7 @@
 using Test
 using FiniteGroups
 @testset "map + cycles" begin
-    τ = Cyc([1,2])
+    τ = Cyc(1,2)
     @test map(τ, 3) == 3
     @test map(τ, 2) == 1
     @test map(τ, 1) == 2
