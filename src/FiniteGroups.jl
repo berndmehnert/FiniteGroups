@@ -31,7 +31,7 @@ Define a cycle:
 
 Example:
 
-τ = Cyc([1,5,2]) defines the map such that 1 -> 5 -> 2 -> 1 and x -> x for all other integers.
+τ = Cyc(1,5,2) defines the map such that 1 -> 5 -> 2 -> 1 and x -> x for all other integers.
 """
 struct Cyc <: Permutation
     dict :: Dict{Int64, Int64}
