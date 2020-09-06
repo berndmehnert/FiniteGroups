@@ -3,7 +3,7 @@ import Base.map, Base.*, Base.^, Base.==
 export τ, Cyc, Perm, Permutation
 
 """
-Abstract type to subsum all permutation types
+Abstract type to subsume all permutation types
 """
 abstract type Permutation end
 """
