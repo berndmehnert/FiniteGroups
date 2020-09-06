@@ -8,7 +8,7 @@ using FiniteGroups
 end
 
 @testset "map + perms" begin
-    σ = Perm([1,5,2])
+    σ = Perm2([1,5,2])
     @test map(σ, 3) == 3
     @test map(σ, 2) == 5
 end

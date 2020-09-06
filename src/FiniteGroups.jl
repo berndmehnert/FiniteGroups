@@ -22,9 +22,9 @@ Example:
 σ = Perm([1,3,2]) 
 is the map which sends 1 -> 1, 2 -> 3, 3 -> 2 and fixes all numbers outside of {1,2,3}.
 """
-struct Perm <: Permutation
+struct Perm2 <: Permutation
     arr :: Array{Int64,1}
-    Perm(arr) = length(Set(arr)) != length(arr) ? error("Elements in array need to be pairwise distinct!") : new(arr)
+    Perm2(arr) = length(Set(arr)) != length(arr) ? error("Elements in array need to be pairwise distinct!") : new(arr)
 end
 
 """
@@ -38,7 +38,7 @@ struct Cyc <: Permutation
     dict :: Dict{Int64, Int64}
 end
 
-struct Perm2 <: Permutation
+struct Perm <: Permutation
     cycles :: Vector{Cyc}
     key_to_cycle_map 
 end
@@ -63,7 +63,20 @@ Cyc(ns :: Int64 ...) = Cyc(collect(ns))
 ==(σ :: Cyc, τ :: Cyc) = σ.dict == τ.dict
  
 function *(σ :: Cyc, τ :: Cyc)
-    return 1
+    f = x -> composition_map(σ, τ, x)
+    S = keys(σ.dict) ∪ keys(τ.dict)
+    cycles = []
+    while !isempty(S)
+        x = iterate(S)[1]
+        arr = extract_cycle(f,x)
+        setdiff!(S, Set(arr))
+        if  length(arr) > 1
+            println(arr)
+            α = Cyc(arr)
+            push!(cycles, α)
+        end
+    end               
+    return Perm(cycles, 1)
 end
 
 function ^(σ :: Cyc, n :: Int)
@@ -79,7 +92,7 @@ function map(τ :: Cyc, x :: Int64)
     return dict[x]
 end
 
-function map(σ :: Perm, x :: Int64)
+function map(σ :: Perm2, x :: Int64)
     array = σ.arr
     if !(x ∈ Set(array))
         return x
@@ -87,5 +100,19 @@ function map(σ :: Perm, x :: Int64)
     sorted_array = sort(array)
     index = findfirst(isequal(x), sorted_array)
     return array[index]
+end
+
+# help functions
+composition_map(σ :: Cyc, τ :: Cyc, x :: Int64) = map(τ, map(σ,x))
+function extract_cycle(f,x)
+    result = Vector{Int64}()
+    y = f(x)
+    push!(result, x)
+    while y != x
+        push!(result, y)
+        z = f(y)
+        y = z
+    end
+    return result
 end
 end # module
