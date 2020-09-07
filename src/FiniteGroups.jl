@@ -72,6 +72,7 @@ function *(σ :: Cyc, τ :: Cyc)
         setdiff!(S, Set(arr))
         if  length(arr) > 1
             println(arr)
+            # we don't need to store cycles, just store arr !
             α = Cyc(arr)
             push!(cycles, α)
         end
