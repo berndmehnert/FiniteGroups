@@ -1,30 +1,23 @@
 module FiniteGroups
+import Base.Dict
 import Base.map, Base.*, Base.^, Base.==
 export τ, Cyc, Perm, Permutation
 
 """
 Abstract type to subsume all permutation types
 """
-abstract type Permutation end
+abstract type AbstractPermutation end
 """
-Suppose we are given n integers a₁,a₂,...,aₙ such that 
-
-                     a₁ < a₂ <...< aₙ (*)
-
-then for any rearragement 
-                     b₁, b₂,..., bₙ 
-of the numbers (*)
-                   Perm([b₁, b₂, ... , bₙ])
-stands for the map that sends aᵢ to bᵢ for i=1, 2,..., n and sends x to x for all integers x which are not in {a₁ , a₂,..., aₙ}. 
-
 Example:
-
-σ = Perm([1,3,2]) 
-is the map which sends 1 -> 1, 2 -> 3, 3 -> 2 and fixes all numbers outside of {1,2,3}.
+σ = Permutation(1=>2, 2=>1, 3=>4, 4=>3) 
+  = Cyc(1,2) * Cyc(3,4)
 """
-struct Perm2 <: Permutation
-    arr :: Array{Int64,1}
-    Perm2(arr) = length(Set(arr)) != length(arr) ? error("Elements in array need to be pairwise distinct!") : new(arr)
+function Permutation(npairs :: Pair{Int64, Int64} ...)
+    dict = Dict(npairs)
+    if Set(keys(dict)) != Set(values(dict))
+        error("The set of keys has to be the same as the set of values ..")
+    end
+    return Perm(get_disjoint_cycles(dict))
 end
 
 """
@@ -34,13 +27,12 @@ Example:
 
 τ = Cyc(1,5,2) defines the map such that 1 -> 5 -> 2 -> 1 and x -> x for all other integers.
 """
-struct Cyc <: Permutation
+struct Cyc <: AbstractPermutation
     dict :: Dict{Int64, Int64}
 end
 
-struct Perm <: Permutation
+struct Perm <: AbstractPermutation
     cycles :: Vector{Cyc}
-    key_to_cycle_map 
 end
 
 function Cyc(v :: Vector{Int64})
@@ -61,23 +53,25 @@ end
 Cyc(ns :: Int64 ...) = Cyc(collect(ns))
 
 ==(σ :: Cyc, τ :: Cyc) = σ.dict == τ.dict
+==(σ :: Perm, τ :: Perm) = σ.cycles == τ.cycles
  
 function *(σ :: Cyc, τ :: Cyc)
-    f = x -> composition_map(σ, τ, x)
     S = keys(σ.dict) ∪ keys(τ.dict)
-    cycles = []
-    while !isempty(S)
-        x = iterate(S)[1]
-        arr = extract_cycle(f,x)
-        setdiff!(S, Set(arr))
-        if  length(arr) > 1
-            println(arr)
-            # we don't need to store cycles, just store arr !
-            α = Cyc(arr)
-            push!(cycles, α)
-        end
-    end               
-    return Perm(cycles, 1)
+    dict = Dict{Int64, Int64}()
+    for s in S
+        push!(dict, s=>map(Perm([σ, τ]), s))
+    end
+    return Perm(get_disjoint_cycles(dict))
+end
+
+function *(σ :: Perm, τ :: Cyc)
+    if length(σ.cycles) == 0
+        return τ
+    end
+    if length(σ.cycles) == 1
+        return σ.cycles[1]*τ
+    end
+    return (Perm(σ.cycles[1::end-1])*σ.cycles[end])*τ
 end
 
 function ^(σ :: Cyc, n :: Int)
@@ -85,34 +79,50 @@ function ^(σ :: Cyc, n :: Int)
 end
 
 # map extension to permutation types.
-function map(τ :: Cyc, x :: Int64)
-    dict = τ.dict
+map(τ :: Cyc, x :: Int64) = map(τ.dict, x)
+
+function map(σ :: Perm, x :: Int64)
+    array = σ.cycles
+    if length(array) == 0
+        return x
+    end
+    if length(array) == 1
+        return map(array[1], x)
+    end
+    return map(array[1], map(Perm(array[2:end]), x))
+end
+
+# help functions
+function map(dict :: Dict{Int64, Int64}, x :: Int64)
     if !(x ∈ keys(dict))
         return x
     end
     return dict[x]
 end
 
-function map(σ :: Perm2, x :: Int64)
-    array = σ.arr
-    if !(x ∈ Set(array))
-        return x
+function extract_cycle_from_dict(dict :: Dict{Int64, Int64}, x)
+    result = Dict{Int64, Int64}()
+    z = map(dict, x)
+    y = x
+    while z != x
+        push!(result, y=>z)
+        y = z
+        z = map(dict, y)
     end
-    sorted_array = sort(array)
-    index = findfirst(isequal(x), sorted_array)
-    return array[index]
+    push!(result, y=>z)
+    return Cyc(result)
 end
 
-# help functions
-composition_map(σ :: Cyc, τ :: Cyc, x :: Int64) = map(τ, map(σ,x))
-function extract_cycle(f,x)
-    result = Vector{Int64}()
-    y = f(x)
-    push!(result, x)
-    while y != x
-        push!(result, y)
-        z = f(y)
-        y = z
+function get_disjoint_cycles(dict :: Dict{Int64, Int64})
+    result = Vector{Cyc}()
+    set = Set(keys(dict))
+    while length(set) > 0
+        x = iterate(set)[1]
+        cyc = extract_cycle_from_dict(dict, x)
+        if length(keys(cyc.dict)) > 1 
+            push!(result, cyc)
+        end
+        set = setdiff!(set, Set(keys(cyc.dict)))
     end
     return result
 end
