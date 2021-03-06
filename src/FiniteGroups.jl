@@ -9,8 +9,7 @@ Abstract type to subsume all permutation types
 abstract type AbstractPermutation end
 """
 Example:
-σ = Permutation(1=>2, 2=>1, 3=>4, 4=>3) 
-  = Cyc(1,2) * Cyc(3,4)
+Permutation(1=>2, 2=>1, 3=>4, 4=>3) == Cyc(1,2) * Cyc(3,4)
 """
 function Permutation(npairs :: Pair{Int64, Int64} ...)
     dict = Dict(npairs)
