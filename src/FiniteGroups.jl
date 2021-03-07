@@ -97,9 +97,26 @@ inverse(σ :: Perm) = begin
     return Perm(arr)
 end
 
-function ^(σ :: Cyc, n :: Int)
-    return 1
+function ^(σ :: AbstractPermutation, n :: Int)
+    if n == 0
+        return Perm(Vector{Cyc}())
+    end
+    if n == 1
+        return σ
+    end
+    if n < 0
+        return inverse(^(σ,-n))
+    end
+    m = div(n,2)
+    r = n%2
+    τ = ^(σ, m)
+    if r == 0 return τ * τ
+    end
+    return (τ*τ)*σ
 end
+
+order(cyc :: Cyc) = length(keys(cyc.dict))
+order(perm :: Perm) = lcm(map(cyc -> order(cyc), perm.cycles))
 
 # map extension to permutation types.
 map(τ :: Cyc, x :: Int64) = map(τ.dict, x)
