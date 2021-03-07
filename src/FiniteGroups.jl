@@ -1,6 +1,5 @@
 module FiniteGroups
-import Base.Dict
-import Base.map, Base.*, Base.^, Base.==
+import Base.print, Base.Dict, Base.map, Base.*, Base.^, Base.==
 export τ, Cyc, Perm, Permutation
 
 """
@@ -54,24 +53,33 @@ Cyc(ns :: Int64 ...) = Cyc(collect(ns))
 ==(σ :: Cyc, τ :: Cyc) = σ.dict == τ.dict
 ==(σ :: Perm, τ :: Perm) = σ.cycles == τ.cycles
  
-function *(σ :: Cyc, τ :: Cyc)
-    S = keys(σ.dict) ∪ keys(τ.dict)
-    dict = Dict{Int64, Int64}()
-    for s in S
-        push!(dict, s=>map(Perm([σ, τ]), s))
+print(cyc :: Cyc) = begin 
+    cyc_keys = keys(cyc.dict)
+    start = iterate(cyc_keys)[1]
+    print("("*string(start))
+    x = cyc.dict[start]
+    while x != start
+        print(","*string(x))
+        x = cyc.dict[x]
     end
-    return Perm(get_disjoint_cycles(dict))
+    print(")")
 end
 
-function *(σ :: Perm, τ :: Cyc)
-    if length(σ.cycles) == 0
-        return τ
-    end
-    if length(σ.cycles) == 1
-        return σ.cycles[1]*τ
-    end
-    return (Perm(σ.cycles[1::end-1])*σ.cycles[end])*τ
+print(perm :: Perm) = begin 
+   if length(perm.cycles) == 0
+       print("()")
+   else
+   for cyc in perm.cycles
+        print(cyc)
+   end
 end
+end
+
+
+*(σ :: Cyc, τ :: Cyc) = Perm(get_disjoint_cycles(get_dict_from_cyc_list([σ, τ])))
+*(σ :: Perm, τ :: Cyc) = Perm(get_disjoint_cycles(get_dict_from_cyc_list([σ.cycles; [τ]])))
+*(σ :: Cyc, τ :: Perm) = Perm(get_disjoint_cycles(get_dict_from_cyc_list([[σ]; τ.cycles])))
+*(σ :: Perm, τ :: Perm) = Perm(get_disjoint_cycles(get_dict_from_cyc_list([σ.cycles; τ.cycles])))
 
 function ^(σ :: Cyc, n :: Int)
     return 1
@@ -97,6 +105,30 @@ function map(dict :: Dict{Int64, Int64}, x :: Int64)
         return x
     end
     return dict[x]
+end
+
+function get_dict_from_cyc_list(arr :: Array{Cyc})
+    if length(arr) == 0 
+        return Dict{Int64,Int64}()
+    end
+    if length(arr) == 1 
+        return arr[1].dict
+    end 
+    dict1 = get_dict_from_cyc_list(arr[1:end-1])
+    dict2 = arr[end].dict
+    result = Dict{Int64, Int64}()
+    for i in keys(dict2)
+        j = dict2[i]
+        if haskey(dict1, j)
+            push!(result, i=>dict1[j])
+        else
+            push!(result, i=>j)
+        end
+    end
+    for i in setdiff(Set(keys(dict1)), Set(values(dict2)))
+        push!(result, i => dict1[i])
+    end
+    return result
 end
 
 function extract_cycle_from_dict(dict :: Dict{Int64, Int64}, x)
