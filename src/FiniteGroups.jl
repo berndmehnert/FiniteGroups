@@ -1,6 +1,6 @@
 module FiniteGroups
 import Base.print, Base.Dict, Base.map, Base.*, Base.^, Base.==
-export τ, Cyc, Perm, Permutation
+export τ, Cyc, Perm, Permutation, inverse
 
 """
 Abstract type to subsume all permutation types
@@ -80,6 +80,22 @@ end
 *(σ :: Perm, τ :: Cyc) = Perm(get_disjoint_cycles(get_dict_from_cyc_list([σ.cycles; [τ]])))
 *(σ :: Cyc, τ :: Perm) = Perm(get_disjoint_cycles(get_dict_from_cyc_list([[σ]; τ.cycles])))
 *(σ :: Perm, τ :: Perm) = Perm(get_disjoint_cycles(get_dict_from_cyc_list([σ.cycles; τ.cycles])))
+
+inverse(σ :: Cyc) = begin
+    dict = Dict{Int64, Int64}()
+    for pair in σ.dict
+        push!(dict, pair.second=>pair.first)
+    end
+    return Cyc(dict)
+end
+
+inverse(σ :: Perm) = begin
+    arr = Vector{Cyc}()
+    for i in 1:length(σ.cycles)
+        push!(arr, inverse(σ.cycles[length(σ.cycles) + 1 - i]))
+    end
+    return Perm(arr)
+end
 
 function ^(σ :: Cyc, n :: Int)
     return 1
