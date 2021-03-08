@@ -1,6 +1,6 @@
 module FiniteGroups
 import Base.print, Base.Dict, Base.map, Base.*, Base.^, Base.==
-export τ, Cyc, Perm, Permutation, inverse
+export τ, Cyc, Perm, Permutation, inverse, order
 
 """
 Abstract type to subsume all permutation types
@@ -10,7 +10,7 @@ abstract type AbstractPermutation end
 Example:
 Permutation(1=>2, 2=>1, 3=>4, 4=>3) == Cyc(1,2) * Cyc(3,4)
 """
-function Permutation(npairs :: Pair{Int64, Int64} ...)
+function Permutation(npairs :: Pair{Int64, Int64} ...) :: Perm
     dict = Dict(npairs)
     if Set(keys(dict)) != Set(values(dict))
         error("The set of keys has to be the same as the set of values ..")
@@ -33,7 +33,7 @@ struct Perm <: AbstractPermutation
     cycles :: Vector{Cyc}
 end
 
-function Cyc(v :: Vector{Int64})
+function Cyc(v :: Vector{Int64}) :: Cyc
     if length(Set(v)) != length(v)
         error("Elements in list have to be distinct!")
     end
