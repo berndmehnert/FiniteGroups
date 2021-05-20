@@ -11,10 +11,12 @@ end
     σ = Cyc([1,2,3])
     τ = Cyc(2,3,1)
     γ = Cyc(1,3,2)
+    print(γ)
     @test σ == τ
     @test !(σ == γ)
     @test order(Cyc(1,3,2)*Cyc(1,3)) == 2
     @test Cyc(1,5,4)^10 == Cyc(1,5,4)
+    @test map(Cyc(1,5,4)^2, 1) == 4
 end
 
 @testset "perm-test" begin
