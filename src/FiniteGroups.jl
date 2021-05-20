@@ -75,7 +75,6 @@ print(perm :: Perm) = begin
 end
 end
 
-
 *(σ :: Cyc, τ :: Cyc) = Perm(get_disjoint_cycles(get_dict_from_cyc_list([σ, τ])))
 *(σ :: Perm, τ :: Cyc) = Perm(get_disjoint_cycles(get_dict_from_cyc_list([σ.cycles; [τ]])))
 *(σ :: Cyc, τ :: Perm) = Perm(get_disjoint_cycles(get_dict_from_cyc_list([[σ]; τ.cycles])))
