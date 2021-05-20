@@ -14,6 +14,7 @@ end
     @test σ == τ
     @test !(σ == γ)
     @test order(Cyc(1,3,2)*Cyc(1,3)) == 2
+    @test Cyc(1,5,4)^10 == Cyc(1,5,4)
 end
 
 @testset "perm-test" begin
