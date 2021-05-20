@@ -1,6 +1,6 @@
 module FiniteGroups
 import Base.print, Base.Dict, Base.map, Base.*, Base.^, Base.==
-export τ, Cyc, Perm, Permutation, inverse, order
+export τ, Cyc, Perm, Permutation, inverse, order,power
 
 """
 Abstract type to subsume all permutation types
@@ -54,7 +54,7 @@ Cyc(ns :: Int64 ...) = Cyc(collect(ns))
 ==(σ :: Perm, τ :: Perm) = σ.cycles == τ.cycles
 ==(σ :: Perm, τ :: Cyc) = σ == Perm([τ])
  
-print(cyc :: Cyc) = begin 
+function print(cyc :: Cyc)
     cyc_keys = keys(cyc.dict)
     start = iterate(cyc_keys)[1]
     print("("*string(start))
@@ -66,7 +66,7 @@ print(cyc :: Cyc) = begin
     print(")")
 end
 
-print(perm :: Perm) = begin 
+function print(perm :: Perm)
    if length(perm.cycles) == 0
        print("()")
    else
@@ -81,7 +81,7 @@ end
 *(σ :: Cyc, τ :: Perm) = Perm(get_disjoint_cycles(get_dict_from_cyc_list([[σ]; τ.cycles])))
 *(σ :: Perm, τ :: Perm) = Perm(get_disjoint_cycles(get_dict_from_cyc_list([σ.cycles; τ.cycles])))
 
-inverse(σ :: Cyc) = begin
+function inverse(σ :: Cyc)
     dict = Dict{Int64, Int64}()
     for pair in σ.dict
         push!(dict, pair.second=>pair.first)
@@ -89,7 +89,7 @@ inverse(σ :: Cyc) = begin
     return Cyc(dict)
 end
 
-inverse(σ :: Perm) = begin
+function inverse(σ :: Perm)
     arr = Vector{Cyc}()
     for i in 1:length(σ.cycles)
         push!(arr, inverse(σ.cycles[length(σ.cycles) + 1 - i]))
@@ -97,7 +97,8 @@ inverse(σ :: Perm) = begin
     return Perm(arr)
 end
 
-function ^(σ :: AbstractPermutation, n :: Int)
+
+function power(σ :: AbstractPermutation, n :: Int)
     if n == 0
         return Perm(Vector{Cyc}())
     end
@@ -105,12 +106,12 @@ function ^(σ :: AbstractPermutation, n :: Int)
         return σ
     end
     if n < 0
-        return inverse(^(σ,-n))
+        return inverse(power(σ,(-n)))
     end
     m = div(n,2)
     r = n%2
-    τ = ^(σ, m)
-    if r == 0 return τ * τ
+    τ = power(σ,m)
+    if r == 0 return τ*τ
     end
     return (τ*τ)*σ
 end
