@@ -52,6 +52,7 @@ Cyc(ns :: Int64 ...) = Cyc(collect(ns))
 
 ==(σ :: Cyc, τ :: Cyc) = σ.dict == τ.dict
 ==(σ :: Perm, τ :: Perm) = σ.cycles == τ.cycles
+==(σ :: Perm, τ :: Cyc) = σ == Perm([τ])
  
 print(cyc :: Cyc) = begin 
     cyc_keys = keys(cyc.dict)
