@@ -1,5 +1,5 @@
 module FiniteGroups
-import Base.print, Base.Dict, Base.map, Base.*, Base.^, Base.==, Base.inv
+import Base.Dict, Base.map, Base.*, Base.^, Base.==, Base.inv, Base.show
 export τ, Cyc, Perm, Permutation, inv, order
 
 """
@@ -54,7 +54,7 @@ Cyc(ns :: Int64 ...) = Cyc(collect(ns))
 ==(σ :: Perm, τ :: Perm) = σ.cycles == τ.cycles
 ==(σ :: Perm, τ :: Cyc) = σ == Perm([τ])
  
-function print(cyc :: Cyc)
+function customized_show(cyc :: Cyc)
     cyc_keys = keys(cyc.dict)
     start = iterate(cyc_keys)[1]
     print("("*string(start))
@@ -66,12 +66,12 @@ function print(cyc :: Cyc)
     print(")")
 end
 
-function print(perm :: Perm)
+function customized_show(perm :: Perm)
    if length(perm.cycles) == 0
        print("()")
    else
    for cyc in perm.cycles
-        print(cyc)
+       customized_show(cyc)
    end
 end
 end
@@ -80,6 +80,9 @@ end
 *(σ :: Perm, τ :: Cyc) = Perm(get_disjoint_cycles(get_dict_from_cyc_list([σ.cycles; [τ]])))
 *(σ :: Cyc, τ :: Perm) = Perm(get_disjoint_cycles(get_dict_from_cyc_list([[σ]; τ.cycles])))
 *(σ :: Perm, τ :: Perm) = Perm(get_disjoint_cycles(get_dict_from_cyc_list([σ.cycles; τ.cycles])))
+
+show(io::IO, ::MIME"text/plain", x::AbstractPermutation) = customized_show(x)
+
 
 function inv(σ :: Cyc)
     dict = Dict{Int64, Int64}()
