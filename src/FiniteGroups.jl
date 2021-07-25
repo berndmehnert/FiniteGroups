@@ -64,6 +64,7 @@ function customized_show(cyc :: Cyc)
         x = cyc.dict[x]
     end
     print(")")
+    return true
 end
 
 function customized_show(perm :: Perm)
@@ -73,6 +74,7 @@ function customized_show(perm :: Perm)
    for cyc in perm.cycles
        customized_show(cyc)
    end
+   return true
 end
 end
 

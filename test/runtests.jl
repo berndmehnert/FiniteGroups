@@ -11,7 +11,6 @@ end
     σ = Cyc([1,2,3])
     τ = Cyc(2,3,1)
     γ = Cyc(1,3,2)
-    print(γ)
     @test σ == τ
     @test !(σ == γ)
     @test order(Cyc(1,3,2)*Cyc(1,3)) == 2
@@ -23,4 +22,10 @@ end
 
 @testset "perm-test" begin
     @test Permutation(1=>2,2=>1,4=>3,3=>4) == Cyc(1,2)*Cyc(4,3)
+end
+
+@testset "show-test" begin
+    σ = Cyc([1,2,3,4])
+    @test FiniteGroups.customized_show(σ)
+    @test FiniteGroups.customized_show(σ^2)
 end
