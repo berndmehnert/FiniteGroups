@@ -53,6 +53,7 @@ Cyc(ns :: Int64 ...) = Cyc(collect(ns))
 ==(σ :: Cyc, τ :: Cyc) = σ.dict == τ.dict
 ==(σ :: Perm, τ :: Perm) = σ.cycles == τ.cycles
 ==(σ :: Perm, τ :: Cyc) = σ == Perm([τ])
+==(τ :: Cyc, σ :: Perm) = ==(σ :: Perm, τ :: Cyc)
  
 function customized_show(cyc :: Cyc)
     cyc_keys = keys(cyc.dict)
@@ -103,7 +104,7 @@ function inv(σ :: Perm)
 end
 
 
-function power(σ :: AbstractPermutation, n :: Int)
+function power(σ :: AbstractPermutation, n :: Integer)
     if n == 0
         return Perm(Vector{Cyc}())
     end
@@ -118,8 +119,13 @@ function power(σ :: AbstractPermutation, n :: Int)
     return (τ*τ)*σ
 end
 
-function ^(x::AbstractPermutation, n::Integer)
-    n >= 0 ? power(x,n) : power(inv(x),-n)
+function ^(x :: Cyc, n :: Integer)
+    m = n % order(x)
+    m >= 0 ? power(x,m) : power(inv(x),-m)
+end
+
+function ^(x::Perm, n :: Integer)
+    prod([(x.cycles[i])^n for i in 1:length(x.cycles)])
 end
 
 order(cyc :: Cyc) = length(keys(cyc.dict))

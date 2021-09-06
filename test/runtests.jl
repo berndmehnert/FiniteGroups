@@ -21,6 +21,9 @@ end
 end
 
 @testset "perm-test" begin
+    c = Cyc(1,3,5)
+    d = Cyc(6,7)
+    @test c^1334 * d^1334 == (c*d)^1334 
     @test Permutation(1=>2,2=>1,4=>3,3=>4) == Cyc(1,2)*Cyc(4,3)
 end
 
