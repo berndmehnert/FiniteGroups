@@ -1,11 +1,13 @@
 module FiniteGroups
 import Base.Dict, Base.map, Base.*, Base.^, Base.==, Base.inv, Base.show
-export τ, Cyc, Perm, Permutation, inv, order
+export τ, Cyc, Perm, Permutation, inv, order, Group, orbit
+
 
 """
 Abstract type to subsume all permutation types
 """
 abstract type AbstractPermutation end
+
 """
 Example:
 Permutation(1=>2, 2=>1, 3=>4, 4=>3) == Cyc(1,2) * Cyc(3,4)
@@ -103,7 +105,6 @@ function inv(σ :: Perm)
     return Perm(arr)
 end
 
-
 function power(σ :: AbstractPermutation, n :: Integer)
     if n == 0
         return Perm(Vector{Cyc}())
@@ -134,6 +135,7 @@ order(perm :: Perm) = lcm(map(cyc -> order(cyc), perm.cycles))
 # map extension to permutation types.
 map(τ :: Cyc, x :: Int64) = map(τ.dict, x)
 
+
 function map(σ :: Perm, x :: Int64)
     array = σ.cycles
     if length(array) == 0
@@ -144,6 +146,32 @@ function map(σ :: Perm, x :: Int64)
     end
     return map(array[1], map(Perm(array[2:end]), x))
 end
+
+abstract type AbstractGroup end
+struct Group <: AbstractGroup
+    generators :: Vector{AbstractPermutation}
+end
+
+function orbit(X, α :: Int64)
+    δ = [α]
+    while true
+        l = length(δ)
+        for ω in δ
+            for τ in X
+                ω1 = map(τ, ω)
+                if ω1 ∉ δ
+                    push!(δ, ω1)
+                end
+            end
+        end
+        if length(δ) == l 
+            break
+        end 
+    end
+    return δ
+end
+
+orbit(g :: Group, α :: Int64) = orbit(g.generators, α)
 
 # help functions
 function map(dict :: Dict{Int64, Int64}, x :: Int64)

@@ -27,6 +27,13 @@ end
     @test Permutation(1=>2,2=>1,4=>3,3=>4) == Cyc(1,2)*Cyc(4,3)
 end
 
+@testset "groups and actions" begin
+    c1 = Cyc(1,2,3,4,5)
+    c2 = Cyc(1,6)
+    G = Group([c1, c2])
+    @test Set(orbit(G,1)) == Set([1,2,3,4,5,6])
+end
+
 @testset "show-test" begin
     σ = Cyc([1,2,3,4])
     @test FiniteGroups.customized_show(σ)
