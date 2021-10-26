@@ -21,4 +21,15 @@ julia> σ*τ
 
 julia> (σ*τ)^-1 == τ^-1*σ^-1
 true
+
+julia> G = Group(σ, τ)
+Finite permutation group with 2 generators ..
+
+julia> orbit(G, 1)
+5-element Vector{Int64}:
+ 1
+ 2
+ 3
+ 4
+ 5
 ```

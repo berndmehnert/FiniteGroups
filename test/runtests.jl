@@ -30,8 +30,12 @@ end
 @testset "groups and actions" begin
     c1 = Cyc(1,2,3,4,5)
     c2 = Cyc(1,6)
+    c3 = Permutation(1=>2, 2=>1)
+    c4 = Cyc(1,3)
     G = Group([c1, c2])
+    G1 = Group(c3, c4)
     @test Set(orbit(G,1)) == Set([1,2,3,4,5,6])
+    @test Set(orbit(G1,3)) == Set([1,2,3])
 end
 
 @testset "show-test" begin

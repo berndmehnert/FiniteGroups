@@ -152,6 +152,12 @@ struct Group <: AbstractGroup
     generators :: Vector{AbstractPermutation}
 end
 
+function Group(generators :: AbstractPermutation ...)
+    return Group([generators ...])
+end
+
+show(io::IO, ::MIME"text/plain", G::Group) = println("Finite permutation group with "*string(length(G.generators))*" generators ..")
+
 function orbit(X, α :: Int64)
     δ = [α]
     while true
