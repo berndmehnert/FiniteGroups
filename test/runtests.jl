@@ -23,6 +23,8 @@ end
 @testset "perm-test" begin
     c = Cyc(1,3,5)
     d = Cyc(6,7)
+    @test id^2 == id
+    @test d^2 == id
     @test c^1334 * d^1334 == (c*d)^1334 
     @test Permutation(1=>2,2=>1,4=>3,3=>4) == Cyc(1,2)*Cyc(4,3)
 end
@@ -34,8 +36,13 @@ end
     c4 = Cyc(1,3)
     G = Group([c1, c2])
     G1 = Group(c3, c4)
-    @test Set(orbit(G,1)) == Set([1,2,3,4,5,6])
-    @test Set(orbit(G1,3)) == Set([1,2,3])
+    c5 = Cyc(1, 2) * Cyc(5, 3)
+    D_10 = Group(c1, c5)
+    S_5 = Group(c1, Cyc(1,5))
+    # @test Set(orbit(G,1)) == Set([1,2,3,4,5,6])
+    # @test Set(orbit(G1,3)) == Set([1,2,3])
+    @test length(elements(D_10)) == 10
+    @test length(elements(S_5)) == 120
 end
 
 @testset "show-test" begin

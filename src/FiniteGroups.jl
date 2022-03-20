@@ -1,6 +1,6 @@
 module FiniteGroups
 import Base.Dict, Base.map, Base.*, Base.^, Base.==, Base.inv, Base.show
-export τ, Cyc, Perm, Permutation, inv, order, Group, orbit
+export τ, Cyc, Perm, Permutation, inv, order, Group, orbit, id, elements
 
 
 """
@@ -31,16 +31,17 @@ struct Cyc <: AbstractPermutation
     dict :: Dict{Int64, Int64}
 end
 
+
 struct Perm <: AbstractPermutation
     cycles :: Vector{Cyc}
 end
 
 function Cyc(v :: Vector{Int64}) :: Cyc
+    if length(v) < 2
+        return Cyc(Dict{Int64,Int64}())
+    end
     if length(Set(v)) != length(v)
         error("Elements in list have to be distinct!")
-    end
-    if length(v) < 2
-        return Cyc(Dict([]))
     end
     dict_arr = []
     for i in 1:length(v)-1
@@ -50,15 +51,20 @@ function Cyc(v :: Vector{Int64}) :: Cyc
     return Cyc(Dict(dict_arr))
 end
 
-Cyc(ns :: Int64 ...) = Cyc(collect(ns))
+Cyc(ns :: Int64 ...) = length(ns) == 0 ? Cyc(Vector{Int64}()) : Cyc(collect(ns))
+const id = Cyc()
 
 ==(σ :: Cyc, τ :: Cyc) = σ.dict == τ.dict
 ==(σ :: Perm, τ :: Perm) = σ.cycles == τ.cycles
-==(σ :: Perm, τ :: Cyc) = σ == Perm([τ])
+==(σ :: Perm, τ :: Cyc) = τ == Cyc() ? σ == Perm(Cyc[]) : σ == Perm([τ])
 ==(τ :: Cyc, σ :: Perm) = ==(σ :: Perm, τ :: Cyc)
  
 function customized_show(cyc :: Cyc)
     cyc_keys = keys(cyc.dict)
+    if length(cyc_keys) == 0
+        print("()")
+        return true
+    end
     start = iterate(cyc_keys)[1]
     print("("*string(start))
     x = cyc.dict[start]
@@ -87,7 +93,7 @@ end
 *(σ :: Perm, τ :: Perm) = Perm(get_disjoint_cycles(get_dict_from_cyc_list([σ.cycles; τ.cycles])))
 
 show(io::IO, ::MIME"text/plain", x::AbstractPermutation) = customized_show(x)
-
+map(σ :: AbstractPermutation, τ :: AbstractPermutation) = σ*τ
 
 function inv(σ :: Cyc)
     dict = Dict{Int64, Int64}()
@@ -129,7 +135,7 @@ function ^(x::Perm, n :: Integer)
     prod([(x.cycles[i])^n for i in 1:length(x.cycles)])
 end
 
-order(cyc :: Cyc) = length(keys(cyc.dict))
+order(cyc :: Cyc) = length(keys(cyc.dict)) < 2 ? 1 : length(keys(cyc.dict))
 order(perm :: Perm) = lcm(map(cyc -> order(cyc), perm.cycles))
 
 # map extension to permutation types.
@@ -158,8 +164,8 @@ end
 
 show(io::IO, ::MIME"text/plain", G::Group) = println("Finite permutation group with "*string(length(G.generators))*" generators ..")
 
-function orbit(X, α :: Int64)
-    δ = [α]
+function orbit(X, α)
+    δ = Any[α]
     while true
         l = length(δ)
         for ω in δ
@@ -177,7 +183,8 @@ function orbit(X, α :: Int64)
     return δ
 end
 
-orbit(g :: Group, α :: Int64) = orbit(g.generators, α)
+orbit(g :: Group, α) = orbit(g.generators, α)
+elements(g :: Group) = orbit(g, id)
 
 # help functions
 function map(dict :: Dict{Int64, Int64}, x :: Int64)
