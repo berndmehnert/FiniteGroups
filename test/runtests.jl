@@ -39,8 +39,8 @@ end
     c5 = Cyc(1, 2) * Cyc(5, 3)
     D_10 = Group(c1, c5)
     S_5 = Group(c1, Cyc(1,5))
-    # @test Set(orbit(G,1)) == Set([1,2,3,4,5,6])
-    # @test Set(orbit(G1,3)) == Set([1,2,3])
+    @test Set(orbit(G,1)) == Set([1,2,3,4,5,6])
+    @test Set(orbit(G1,3)) == Set([1,2,3])
     @test length(elements(D_10)) == 10
     @test length(elements(S_5)) == 120
 end
